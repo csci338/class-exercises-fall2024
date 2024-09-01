@@ -1,5 +1,3 @@
-package lab02;
-
 import java.util.*;
 
 public class ContainsPair {
@@ -33,3 +31,4 @@ public class ContainsPair {
 
     }
 }
+
