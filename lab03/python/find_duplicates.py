@@ -1,11 +1,17 @@
-def find_duplicates_nested_loop(l: list) -> list:
+def find_duplicates_dict(l: list) -> list:
+    frequency = {}
     duplicates = []
-    
-    for x in range(len(l)):
-        for y in range(x + 1, len(l)):
-            if l[x] == l[y] and l[x] not in duplicates:
-                duplicates.append(l[x])
-    
+
+    for item in l:
+        if item in frequency:
+            frequency[item] += 1
+        else:
+            frequency[item] = 1
+
+    for key, count in frequency.items():
+        if count > 1:
+            duplicates.append(key)
+
     return duplicates
 
 if __name__ == "__main__":
@@ -14,7 +20,7 @@ if __name__ == "__main__":
     sample3 = [3, 0, 5, 1, 0]
     sample4 = [3]
     
-    print("Sample 1:", find_duplicates_nested_loop(sample1)) 
-    print("Sample 2:", find_duplicates_nested_loop(sample2))  
-    print("Sample 3:", find_duplicates_nested_loop(sample3))  
-    print("Sample 4:", find_duplicates_nested_loop(sample4)) 
+    print("Sample 1:", find_duplicates_dict(sample1)) 
+    print("Sample 2:", find_duplicates_dict(sample2)) 
+    print("Sample 3:", find_duplicates_dict(sample3))  
+    print("Sample 4:", find_duplicates_dict(sample4))  
