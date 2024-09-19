@@ -13,14 +13,23 @@ Complete the following tutorial sections (note that #4 and #9 are optional) and 
 Consider the command you just ran: `docker run -d -p 80:80 docker/getting-started`
 
 Answer the following:
-1. Explain what the -p flag is doing (in your own words)
-2. How do you think [http://localhost](http://localhost) is communicating with Docker?
+1. Explain what the -p flag is doing (in your own words): 
+-- The -p flag maps port 80 on your host machine (the computer you're running Docker on) to port 80 inside the Docker container.
+
+2. How do you think [http://localhost](http://localhost) is communicating with Docker? 
+-- The "docker run" command with the -p flag allows your web browser, when you visit localhost, to connect to the container’s web server running inside Docker
 
 ## 2. Our Application
 When you download and unzip `app`, save it inside of the `lab04` directory (while on your `lab04` branch). Then follow the instructions for this section. When you're done, answer the following questions about the `Dockerfile` you just made:
-1. What is `node:18-alpine` and where did it come from?
+1. What is `node:18-alpine` and where did it come from? 
+ -- node:18-alpine is a lightweight version of the Node.js and it came from Docker Hub
+
 2. Which commands in the Dockerfile instructed Docker to copy the code from `app` onto the Docker image? Explain.
+-- The " WORKDIR /app" and "COPY . . " are used to copy the contents of your local app directory to the /app directory inside the Docker image.
+
 3. What do you think would happen if you forgot to add `CMD ["node", "src/index.js"]` in your Dockerfile? Why?
+-- Docker wouldn’t know which command to run when the container starts, so the container might start but immediately exit because no process is specified to 
+run in the foreground. 
 
 ## 3. Updating Our App
 In this section, you learned that if you make a change to the code, you have to 
@@ -30,6 +39,8 @@ In this section, you learned that if you make a change to the code, you have to
 
 Answer the following:
 1. What are two ways you can delete a container?
+-- One way is to use the command "docker rm <container-id>" to remove a stopped container. Another way is to stop the container first using "docker stop <container-id>" 
+and then remove it using "docker rm <container-id>".
 
 ## 4. Sharing Our App (Optional)
 You don't have to complete this section, but I do want you to navigate to the Docker Image repository and take a look: [https://hub.docker.com/search?q=&type=image&image_filter=official](https://hub.docker.com/search?q=&type=image&image_filter=official). These are all of the potential Docker Images you can utilize to build your own containers (which will save you a lot of time)!
@@ -37,13 +48,30 @@ You don't have to complete this section, but I do want you to navigate to the Do
 ## 5. Persisting our DB
 
 1. What is the difference between the `run` and the `exec` command?
+-- The docker run command creates and starts a new container based on a specified image, while docker exec runs a command inside an already running container without 
+starting a new one.
+
 2. What does the `docker exec -it` command do, exactly. Try asking ChatGPT!
+-- The "docker exec -it <container-id> <command>" command allows you to run a command inside a running container. The -i flag keeps the input stream open, and the -t flag 
+allocates a pseudo-terminal, enabling you to interact with the container in a shell-like environment.
+
 3. What was the purpose of creating a volume?
+-- The purpose of creating a volume is to persist data. You can make it to where data created or modified by the container is saved and available even if the container 
+is removed or replaced. 
+
 4. Optional: How does the TODO app code know to use the volume you just made? Hint: open `app/src/persistence/sqlite.js` and see if you can figure it out.
 
 ## 6. Using Bind Mounts
 1. Why are bind mounts useful? 
-2. Note that the commands below can also be represented in a Dockerfile (instead of in one big string of commands on the terminal). What are the advantages of using a Dockerfile?
+-- We can use Bind Mounts to not only persist data, but also allow the addition of data and see it implemented immediately
+
+2. Note that the commands below can also be represented in a Dockerfile (instead of in one big string of commands on the terminal). 
+What are the advantages of using a Dockerfile?
+
+-- A Dockerfile ensures that the environment setup and execution is consistently repeated across multiple systems or environments.
+-- Using a Dockerfile allows you to easily update and maintain the build process. When changes are needed, they can be made in one place rather than modifying and 
+running lengthy terminal commands. 
+-- A Dockerfile can be easily modified and open in other text editors like Visual Studio Code, which can then come with helpful syntax and logic help.
 
 ```
 docker run -dp 3000:3000 \
@@ -55,10 +83,17 @@ docker run -dp 3000:3000 \
 ## 7. Multi-Container Apps
 If you have never worked with network applications, this section may be confusing. That said, try to answer this question as best you can:
 
-1. If you have two containers running that are sandboxed (i.e., one container can't reach into another container and see its internal state or code), how did you get your two containers to communicate with one another? In other words, how was the web application container able to communicate with the database container?
+1. If you have two containers running that are sandboxed (i.e., one container can't reach into another container and see its internal state or code), 
+how did you get your two containers to communicate with one another? In other words, how was the web application container able to communicate with the database container?
+-- First, I created a network with "docker network create"
+-- Then, started a MySQL container and attached it to the network, as well as check its working with "docker exec -it <mysql-container-id> mysql -p"
+-- I then started a new containerusing a netshoot image "docker run -it --network todo-app nicolaka/netshoot", and used dig to get connectivity information
+-- Lastly, I set the required environmental variables as well as re-entered SQL to view database information
 
 ## 8. Using Docker Compose
 1. What is the purpose of the `docker-compose.yml` file?
+-- The docker-compose.yml file is used to connect and layer multi-container Docker applications. It simplifies running multiple services (like web servers, 
+databases, etc.) by describing how they should be built, connected, and started together.
 
 ## 9. Image Building Best Practices (Optional)
 Optional section. Only complete if you want to.
