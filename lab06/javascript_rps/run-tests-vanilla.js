@@ -4,21 +4,21 @@ import { assertPrint, runAllTests } from "./helpers.js";
 function testHelloWorld() {
     return assertPrint(
         helloWorld() === "Hello world!",
-        'it returns "Hello world!"'
+        'it returns "Hello world!"',
     );
 }
 
 function testPaperBeatsRock() {
     return assertPrint(
         rps("rock", "paper") === "Paper wins!",
-        "paper beats rock"
+        "paper beats rock",
     );
 }
 
 function testPaperBeatsRockCommutes() {
     return assertPrint(
         rps("paper", "rock") === "Paper wins!",
-        "paper beats rock (flipped)"
+        "paper beats rock (flipped)",
     );
 }
 
