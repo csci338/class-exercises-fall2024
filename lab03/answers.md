@@ -4,28 +4,38 @@
 
 ### 1.1. List the contents of the lab03-exercises repo immediately after initialization
 ```
-# paste code here
-
+.  ..  .git  README.md
 
 ```
 
 ### 1.2. Paste the output of your `git status` command
 ```
-# paste code here
+On branch master
 
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	README.md
+
+nothing added to commit but untracked files present (use "git add" to track)
 
 ```
 
 ### 1.3. Paste the output of the state of your repository after committing your README.md file
 ```
-# paste code here
-
+On branch master
+nothing to commit, working tree clean
 
 ```
 
 ### 1.4. Copy your `git log` output
 ```
-# paste code here
+commit 9a33ecceef9b1e48f5091ea1292d2bd7536d2b1f (HEAD -> master)
+Author: Josie <jandersoj03@gmail.com>
+Date:   Thu Sep 5 10:16:44 2024 -0400
+
+    add README.md to the repository!
 
 
 ```
