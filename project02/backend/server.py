@@ -35,18 +35,26 @@ async def startup():
 # Task 1
 @app.get("/api/departments/", response_model=List[str])
 async def get_department_codes(db: AsyncSession = Depends(get_db)):
-    # replace with your code...
-    return []
+    result = await db.execute(
+        select(models.Course.department).distinct()
+    )
+    departments = result.scalars().all()
+    return departments
 
 
 # Task 2
-# Note: replace response_model=object with response_model=User once you've got this working
-@app.get("/api/users/{username}", response_model=object)
+# Note: replace response_model=object with
+# response_model=User once you've got this working
+@app.get("/api/users/{username}", response_model=serializers.User)
 async def get_users_by_username(
     username: str, db: AsyncSession = Depends(get_db)
 ):
-    # replace with your code...
-    return {}
+    result = await db.execute(
+        select(models.User).filter(models.User.username == username)
+    )
+    user = result.scalars().first()
+
+    return user
 
 
 # Task 3
@@ -56,6 +64,9 @@ async def get_courses(
     instructor: str = Query(None),
     department: str = Query(None),
     hours: int = Query(None),
+    is_di: bool = Query(None),
+    is_open: bool = Query(None),
+    days: str = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
 
@@ -86,6 +97,12 @@ async def get_courses(
                 models.Instructor.first_name.ilike(f"%{instructor}%"),
             )
         )
+    if is_di is not None:
+        query = query.where(models.Course.diversity_intensive == is_di)
+    if is_open is not None:
+        query = query.where(models.Course.open == is_open)
+    if days:
+        query = query.where(models.Course.days.ilike(f"%{days}%"))
 
     result = await db.execute(
         query.order_by(models.Course.department, models.Course.code)
@@ -169,28 +186,6 @@ async def read_schedule(db: AsyncSession = Depends(get_db)):
     )
     schedules = result.scalars().all()
     return schedules
-
-
-# @app.post("/api/schedules/", response_model=serializers.Schedule)
-# async def create_schedule(
-#     schedule: serializers.ScheduleCreate,
-#     user_id: int,
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     # Fetch the user
-#     result = await db.execute(
-#         select(models.User).where(models.User.id == user_id)
-#     )
-#     user = result.scalar_one_or_none()
-#     if user is None:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     # Create a new schedule
-#     new_schedule = models.Schedule(name=schedule.name, user_id=user_id)
-#     db.add(new_schedule)
-
-#     await db.commit()
-#     return new_schedule
 
 
 @app.get("/api/schedules/{username}", response_model=serializers.Schedule)
