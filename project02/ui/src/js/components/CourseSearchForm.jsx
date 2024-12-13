@@ -11,8 +11,9 @@ import {
     Switch,
     Space,
 } from "antd";
+import { fetchCourses } from "../services/api";
 
-export default function CourseSearchForm({ fetchCourses }) {
+export default function CourseSearchForm({ filterCourses, departments }) {
     const classificationOpts = [
         { key: "fys", value: "First Year Seminar" },
         { key: "di", value: "Diversity Intensive" },
@@ -25,8 +26,9 @@ export default function CourseSearchForm({ fetchCourses }) {
     const handleFormSubmit = (formData) => {
         console.log("Here's the form data:", formData);
         // fetchCourses is a function defined in the parent component (App.jsx).
+
         // It was passed into this component as a prop.
-        fetchCourses(formData);
+        filterCourses(formData);
     };
 
     return (
@@ -72,19 +74,11 @@ export default function CourseSearchForm({ fetchCourses }) {
                     <Form.Item label="Department" name="department">
                         <Select>
                             <Select.Option value="">Any</Select.Option>
-
-                            {/* React Task 2:
-                                replace these hardcoded ones with ones 
-                                that are coming from the /api/departments endpoint. 
-                                You will need to use the useEffect and useState React 
-                                functions. 
-                            */}
-                            <Select.Option key="CSCI" value="CSCI">
-                                CSCI
-                            </Select.Option>
-                            <Select.Option key="NM" value="NM">
-                                NM
-                            </Select.Option>
+                            {departments.map((department, index) => (
+                                <Select.Option key={department} value={department}>
+                                    {department}
+                                </Select.Option>
+                            ))}
                         </Select>
                     </Form.Item>
 
