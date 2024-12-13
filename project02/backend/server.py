@@ -36,26 +36,54 @@ async def startup():
 @app.get("/api/departments/", response_model=List[str])
 async def get_department_codes(db: AsyncSession = Depends(get_db)):
     # replace with your code...
-    return []
+    result = await db.execute(
+        select(models.Course.department)
+        .distinct()
+        .order_by(models.Course.department)
+    )
+    departments = result.scalars().all()
+    return departments
+    
 
 
 # Task 2
 # Note: replace response_model=object with response_model=User once you've got this working
-@app.get("/api/users/{username}", response_model=object)
+@app.get("/api/users/{username}", response_model=serializers.User)
 async def get_users_by_username(
     username: str, db: AsyncSession = Depends(get_db)
 ):
     # replace with your code...
-    return {}
+    # Query the User model to find the user by username, ordered by id
+    result = await db.execute(
+        select(models.User).where(models.User.username == username).order_by(models.User.id)
+    )
+    user = result.scalar_one_or_none()
+
+    # If no user is found, raise a 404 error
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user
 
 
 # Task 3
 @app.get("/api/courses/", response_model=List[serializers.Course])
+    
+
 async def get_courses(
     title: str = Query(None),
     instructor: str = Query(None),
     department: str = Query(None),
     hours: int = Query(None),
+    special_category: str = Query(None),  # New filter for special categories
+    is_open: bool = Query(None),  # New filter to show only open courses
+    days: str = Query(None),  # New filter for matching days
+    di: bool = Query(None),  # Filter for Diversity Intensive courses
+    service: bool = Query(None),
+    dir: bool = Query(None),  # Filter for Diversity Intensive R courses
+    honors: bool = Query(None),  # Filter for honors courses
+    fys: bool = Query(None),  # Filter for First-Year Seminar courses
+    arts: bool = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
 
@@ -86,6 +114,46 @@ async def get_courses(
                 models.Instructor.first_name.ilike(f"%{instructor}%"),
             )
         )
+    # Includes a "special_category" filter if specified:
+    if special_category:
+        query = query.where(models.Course.special_category.ilike(f"%{special_category}%"))
+    
+    # Includes an "is_open" filter if specified (for open courses only):
+    if is_open is not None:
+        query = query.where(models.Course.open == is_open)
+
+     # Includes a filter for Diversity Intensive (DI) courses if specified:
+    if di is not None:
+        query = query.where(models.Course.diversity_intensive == di)
+
+    # Includes a filter for Diversity Intensive R (DIR) courses if specified:
+    if dir is not None:
+        query = query.where(models.Course.diversity_intensive_r == dir)
+
+    # Includes a filter for Honors courses if specified:
+    if honors is not None:
+        query = query.where(models.Course.honors == honors)
+
+    # Includes a filter for Honors courses if specified:
+    if service is not None:
+        query = query.where(models.Course.service_learning == service)
+
+    # Includes a filter for First-Year Seminar (FYS) courses if specified:
+    if fys is not None:
+        query = query.where(models.Course.first_year_seminar == fys)
+
+     # Includes a filter for arts courses if specified:
+    if arts is not None:
+        query = query.where(models.Course.arts == arts)
+
+    # Includes a "days" filter if specified:
+    if days:
+        # Assuming a related table `CourseSchedule` that links days to the course
+        # You can adjust this part depending on your schema.
+        query = query.join(models.Course.schedules).where(
+            models.Course.days.ilike(f"%{days}%")
+        )
+
 
     result = await db.execute(
         query.order_by(models.Course.department, models.Course.code)

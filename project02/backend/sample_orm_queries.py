@@ -4,7 +4,7 @@ from sqlalchemy import select  # , or_
 from sqlalchemy.orm import joinedload, selectinload
 
 from db import AsyncSessionLocal
-from models import Course, Schedule
+from models import Course, Schedule, User
 
 """
 Documentation:
@@ -93,15 +93,54 @@ async def print_schedules(db: AsyncSessionLocal):
                 print("     * Location:", course.location.full_location)
             print()
 
+async def print_usernames(db: AsyncSessionLocal):
+    # Query all of the users:
+    query = select(User).order_by(User.id)
+    # users = session.execute(query)
+    users = await db.scalars(query)
+
+    # Output all of the users using regular Python:
+    print(query)  # prints the SQL
+    for user in users:
+        print(user.username)
+
+async def print_unique_departments(db: AsyncSessionLocal):
+    # Query distinct departments from the Course model
+    query = select(Course.department).distinct().order_by(Course.department)
+    
+    # Execute the query and get the distinct departments
+    departments = await db.scalars(query)
+
+    # Output the SQL query and print each department
+    print(query)  # prints the SQL
+    print("Unique Departments:")
+    for department in departments:
+        print(f"- {department}")
+
+async def print_open_cs_courses(db: AsyncSessionLocal):
+    # Query open CSCI courses where the 'is_full' flag is False
+    query = select(Course).where(Course.department == "CSCI", Course.open == True).order_by(Course.crn)
+    
+    # Execute the query and get the results
+    courses = await db.scalars(query)
+    
+    # Output the SQL query and print each open course
+    print(query)  # prints the SQL
+    print("Open CSCI Courses:")
+    for course in courses:
+        print(f"{course.crn} - {course.title}")
 
 async def main():
     # create a DB session
     db = AsyncSessionLocal()
 
     # async function invocations go here:
-    await show_courses(db)
-    await show_courses_with_table_joins(db)
-    await print_schedules(db)
+    # await show_courses(db)
+    # await show_courses_with_table_joins(db)
+    # await print_schedules(db)
+    # await print_usernames(db)
+    # await print_unique_departments(db) 
+    await print_open_cs_courses(db)
 
     await db.close()
 

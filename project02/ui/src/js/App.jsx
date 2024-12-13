@@ -7,6 +7,7 @@ import {
     fetchUser,
     fetchSchedule,
     fetchCourses,
+    fetchDepartments,
     deleteCourseFromSchedule,
     addCourseToSchedule,
 } from "./services/api.jsx";
@@ -15,12 +16,14 @@ export default function App() {
     const [courseList, setCourseList] = useState([]);
     const [user, setUser] = useState(null);
     const [schedule, setSchedule] = useState(null);
-    const username = "svanwart";
+    const [departments, setDepartments] = useState([]);
+    const username = "awillis4";
 
     async function filterCourses(options) {
         const data = await fetchCourses(options);
         setCourseList(data);
     }
+
 
     async function removeCourse(crn) {
         const scheduleNew = await deleteCourseFromSchedule(schedule, crn);
@@ -45,6 +48,9 @@ export default function App() {
 
             const scheduleData = await fetchSchedule(userData.username);
             setSchedule(scheduleData);
+
+            const departmentData = await fetchDepartments();
+            setDepartments(departmentData);
         }
         initializeData();
     }, []);
@@ -55,7 +61,8 @@ export default function App() {
             <Schedule schedule={schedule} removeCourse={removeCourse} />
 
             <main className="bg-slate-50 w-auto max-w-screen-xl m-auto lg:p-10">
-                <Form fetchCourses={filterCourses} />
+                <Form filterCourses={filterCourses} departments={departments} />
+
                 <CourseList courseList={courseList} addToSchedule={addCourse} />
             </main>
         </>
